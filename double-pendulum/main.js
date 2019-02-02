@@ -56,7 +56,7 @@ function setup() {
     cvs.parent('sketch-holder');
 
     x_center = width / 2;
-    y_center = 150;
+    y_center = 200;
     
     buffer = createGraphics(width, height);
     buffer.background(233, 236, 239);
@@ -79,7 +79,7 @@ function draw() {
         fill(0);
         ellipse(endx, endy, size, size);
     }
-    
+
     const { x: x1, y: y1 } = pendulum1.getCoordinates();
     drawPendulum(0, 0, x1, y1, pendulum1.mass);
 
