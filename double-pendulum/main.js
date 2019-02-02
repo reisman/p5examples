@@ -96,13 +96,16 @@ function draw() {
     const y2 = y1 + r2 * cos(a2);
     drawPendulum(x1, y1, x2, y2, m2);
 
-    a1_velo += calculateFirstPendulumAcceleration();
-    a2_velo += calculateSecondPendulumAcceleration();
+    const p1 = new Pendulum(m1, r1, a1, a1_velo);
+    const p2 = new Pendulum(m2, r2, a2, a2_velo);
+
+    a1_velo += calculateFirstPendulumAcceleration1(g, p1, p2);
+    a2_velo += calculateSecondPendulumAcceleration1(g, p1, p2);
     a1 += a1_velo;
     a2 += a2_velo;
 
-    buffer.stroke(0);
     if (x2_prev != undefined) {
+        buffer.stroke(50, 100, 50);
         buffer.line(x2_prev, y2_prev, x2, y2);
     }
 
@@ -116,22 +119,4 @@ const drawPendulum = (startx, starty, endx, endy, size) => {
     line(startx, starty, endx, endy);
     fill(0);
     ellipse(endx, endy, size, size);
-}
-
-const calculateFirstPendulumAcceleration = ()  => {
-    const a1_Num_1 = -g * (2 * m1 + m2) * sin(a1);
-    const a1_Num_2 = -m2 * g * sin(a1 - 2 * a2);
-    const a1_Num_3 = -2 * sin(a1 -a2) * m2;
-    const a1_Num_4 =  a2_velo * a2_velo * r2 + a1_velo * a1_velo * r1 * cos(a1 - a2);
-    const a1_Denum = r1 * (2 * m1 + m2 - m2 * cos(2 * a1 - 2* a2));
-    return (a1_Num_1 + a1_Num_2 + a1_Num_3 * a1_Num_4) / a1_Denum;
-}
-
-const calculateSecondPendulumAcceleration = ()  => {
-    const a2_Num_1 = 2 * sin(a1 - a2);
-    const a2_Num_2 = a1_velo * a1_velo * r1 * (m1 + m2);
-    const a2_Num_3 = g * (m1 + m2) * cos(a1);
-    const a2_Num_4 = a2_velo * a2_velo * r2 * m2 * cos(a1 - a2);
-    const a2_Denum = r2 * (2 * m1 + m2 - m2 * cos(2 * a1 - 2 * a2));
-    return (a2_Num_1 * (a2_Num_2 + a2_Num_3 + a2_Num_4)) / a2_Denum;
 }
