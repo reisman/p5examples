@@ -1,73 +1,58 @@
 'use strict';
 
-let r1, r2;
-let m1, m2;
-let a1, a2;
-let a1_velo, a2_velo;
 let x2_prev, y2_prev;
 let x_center, y_center;
 let g;
 let cvs, buffer;
 let started = false;
+let pendulum1, pendulum2;
 
 const startSimulation = () => {
+    const readFromUi = () => {
+        const getElement = name => {
+            return parseFloat(document.getElementById(name).value);
+        }
+    
+        g = getElement('gravity');
+        pendulum1 = new Pendulum(getElement('firstMass'), getElement('firstLength'), getElement('firstAngle'), 0);
+        pendulum2 = new Pendulum(getElement('secondMass'), getElement('secondLength'), getElement('secondAngle'), 0);
+    }
+
     initState();
     readFromUi();
     started = true;
 }
 
 const resetValues = () => {
+    const writeDefaultToUi = () => {
+        const setElement = (name, value) => {
+            document.getElementById(name).value = value;
+        }
+    
+        setElement('firstMass', 20);
+        setElement('firstLength', 125);
+        setElement('firstAngle', 0.8);
+        setElement('secondMass', 40);
+        setElement('secondLength', 125);
+        setElement('secondAngle', 1.6);
+        setElement('gravity', g);
+    }
+
     started = false;
-    r1 = 125;
-    r2 = 125;
-    m1 = 20;
-    m2 = 40;
-    a1 = 0.8;
-    a2 = 1.6;
     g = 0.981;
     initState();
-    writeToUi();
+    writeDefaultToUi(); 
 }
 
 const initState = () => {
-    a1_velo = 0;
-    a2_velo = 0;
     x2_prev = undefined;
     y2_prev = undefined;
     cvs.background(233, 236, 239);
     buffer.background(233, 236, 239);
 }
 
-const writeToUi = () => {
-    const setElement = (name, value) => {
-        document.getElementById(name).value = value;
-    }
-
-    setElement('firstMass', m1);
-    setElement('firstLength', r1);
-    setElement('firstAngle', a1);
-    setElement('secondMass', m2);
-    setElement('secondLength', r2);
-    setElement('secondAngle', a2);
-    setElement('gravity', g);
-}
-
-const readFromUi = () => {
-    const getElement = name => {
-        return parseFloat(document.getElementById(name).value);
-    }
-
-    m1 = getElement('firstMass');
-    r1 = getElement('firstLength');
-    a1 = getElement('firstAngle');
-    m2 = getElement('secondMass');
-    r2 = getElement('secondLength');
-    a2 = getElement('secondAngle');
-    g = getElement('gravity');
-}
-
 function setup() {
-    cvs = createCanvas(500, 500);
+    cvs = createCanvas(800, 500);
     cvs.parent('sketch-holder');
 
     x_center = width / 2;
@@ -85,24 +70,24 @@ function draw() {
 
     imageMode(CORNER);
     image(buffer, 0, 0, width, height);
-    
     translate(x_center, y_center);
 
-    const x1 = r1 * sin(a1);
-    const y1 = r1 * cos(a1);
-    drawPendulum(0, 0, x1, y1, m1);
+    const drawPendulum = (startx, starty, endx, endy, size) => {
+        stroke(0);
+        strokeWeight(2);
+        line(startx, starty, endx, endy);
+        fill(0);
+        ellipse(endx, endy, size, size);
+    }
+    
+    const { x: x1, y: y1 } = pendulum1.getCoordinates();
+    drawPendulum(0, 0, x1, y1, pendulum1.mass);
 
-    const x2 = x1 + r2 * sin(a2);
-    const y2 = y1 + r2 * cos(a2);
-    drawPendulum(x1, y1, x2, y2, m2);
+    const { x: x2, y: y2 } = pendulum2.getCoordinates(x1, y1);
+    drawPendulum(x1, y1, x2, y2, pendulum2.mass);
 
-    const p1 = new Pendulum(m1, r1, a1, a1_velo);
-    const p2 = new Pendulum(m2, r2, a2, a2_velo);
-
-    a1_velo += calculateFirstPendulumAcceleration1(g, p1, p2);
-    a2_velo += calculateSecondPendulumAcceleration1(g, p1, p2);
-    a1 += a1_velo;
-    a2 += a2_velo;
+    pendulum1.addVelocity(calculateFirstPendulumAcceleration(g, pendulum1, pendulum2));
+    pendulum2.addVelocity(calculateSecondPendulumAcceleration(g, pendulum1, pendulum2));
 
     if (x2_prev != undefined) {
         buffer.stroke(50, 100, 50);
@@ -111,12 +96,4 @@ function draw() {
 
     x2_prev = x2;
     y2_prev = y2;
-}
-
-const drawPendulum = (startx, starty, endx, endy, size) => {
-    stroke(0);
-    strokeWeight(2);
-    line(startx, starty, endx, endy);
-    fill(0);
-    ellipse(endx, endy, size, size);
 }
