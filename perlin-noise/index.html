@@ -5,11 +5,94 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Perlin Noise</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous" />
     <link rel="stylesheet" type="text/css" media="screen" href="style.css" />
     <script src="../p5.min.js"></script>
     <script src="particle.js"></script>
     <script src="main.js"></script>
 </head>
 <body>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <div class="jumbotron">
+                    <h3 class="display-6">Noise Field</h1>
+                    <hr />
+                    <form>
+                        <div class="form-group row">
+                            <label for="increaseX" class="col-sm-4 col-form-label">Increase X:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="increaseX" placeholder="Increase X">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="increaseY" class="col-sm-4 col-form-label">Increase Y:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="increaseY" placeholder="Increase Y">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="increaseZ" class="col-sm-4 col-form-label">Increase Z:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="increaseZ" placeholder="Increase Z">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="col-sm">
+                <div class="jumbotron">
+                    <h3 class="display-6">Particles</h1>
+                    <hr />
+                    <form>
+                        <div class="form-group row">
+                            <label for="numberParticles" class="col-sm-4 col-form-label">Number:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="numberParticles" placeholder="Number of Particles">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="maxVelocity" class="col-sm-4 col-form-label">Velocity:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="maxVelocity" placeholder="Max. Velocity">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="magnitude" class="col-sm-4 col-form-label">Magnitude:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="magnitude" placeholder="Flow Magnitude">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="col-sm">
+                <div class="jumbotron">
+                    <h3 class="display-6">General</h1>
+                    <hr />
+                    <form>
+                        <div class="form-group row">
+                            <label for="scale" class="col-sm-4 col-form-label">Scale:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="scale" placeholder="Scale">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <button type="button" class="btn btn-success btn-block" onclick="startSimulation()">Start simulation</button>
+                        </div>
+                        <div class="form-group">
+                            <button type="button" class="btn btn-danger btn-block" onclick="resetValues()">Reset</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="row justify-content-md-center">
+            <div id="sketch-holder"></div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>    
 </body>
 </html>

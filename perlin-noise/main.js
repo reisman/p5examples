@@ -1,31 +1,85 @@
-const increaseX = 0.10;
-const increaseY = 0.10;
-const increaseZ = 0.0005;
-const scale = 10;
-const numberParticles = 10000;
-const maxVelocity = 4;
-const magnitude = 1;
+const parentElementId = 'sketch-holder';
+const defaultIncreaseX = 0.10;
+const defaultIncreaseY = 0.10;
+const defaultIncreaseZ = 0.0005;
+const defaultScale = 10;
+const defaultNumberParticles = 10000;
+const defaultMaxVelocity = 4;
+const defaultMagnitude = 1;
 
-const particles = [];
+let increaseX, increaseY, increaseZ;
+let scale;
+let numberParticles;
+let maxVelocity;
+let magnitude;
+
+let particles;
 let cols, rows;
 let zoff = 0;
 let flowField;
+let started = false;
 
-function setup() {
-    createCanvas(1000, 1000, P2D);
-    cols = floor(width / scale);
-    rows = floor(height / scale);
-
-    flowField = new Array(rows * cols);
-
-    for (let i = 0; i < numberParticles; i++) {
-        particles[i] = new Particle(width, height);
+const startSimulation = () => {
+    const readFromUi = () => {
+        const getElement = name => {
+            return parseFloat(document.getElementById(name).value);
+        }
+        
+        increaseX = getElement('increaseX');
+        increaseY = getElement('increaseY');
+        increaseZ = getElement('increaseZ');
+        scale = getElement('scale');
+        numberParticles = getElement('numberParticles');
+        maxVelocity = getElement('maxVelocity');
+        magnitude = getElement('magnitude');       
     }
 
+    const init = () => {
+        cols = floor(width / scale);
+        rows = floor(height / scale);
+        flowField = new Array(rows * cols);
+        particles = [];
+        for (let i = 0; i < numberParticles; i++) {
+            particles[i] = new Particle(width, height);
+        }
+    
+        background(255);
+    }
+
+    readFromUi();
+    init();
+    started = true;
+}
+
+const resetValues = () => {
+    const writeDefaultToUi = () => {
+        const setElement = (name, value) => {
+            document.getElementById(name).value = value;
+        }
+    
+        setElement('increaseX', defaultIncreaseX);
+        setElement('increaseY', defaultIncreaseY);
+        setElement('increaseZ', defaultIncreaseZ);
+        setElement('scale', defaultScale);
+        setElement('numberParticles', defaultNumberParticles);
+        setElement('maxVelocity', defaultMaxVelocity);
+        setElement('magnitude', defaultMagnitude);
+    }
+
+    started = false;
     background(255);
+    writeDefaultToUi(); 
+}
+
+function setup() {
+    const cvs = createCanvas(1200, 600, P2D);
+    cvs.parent(parentElementId);
+    resetValues();
 }
 
 function draw() {
+    if (!started) return;
+
     let yoff = 0;
     for (let y = 0; y < rows; y++) {
         let xoff = 0;

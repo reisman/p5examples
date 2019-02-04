@@ -7,13 +7,6 @@ class Particle {
         this.prevPos = this.pos.copy();
     }
 
-    update(maxVelocity) {
-        this.vel.add(this.acc);
-        this.vel.limit(maxVelocity);
-        this.pos.add(this.vel);
-        this.acc.mult(0);
-    }
-
     show(flowField, scale, cols, maxVelocity) {
         this.follow(flowField, scale, cols);
         this.update(maxVelocity);
@@ -22,15 +15,19 @@ class Particle {
         this.updatePrevious();
     }
 
-    draw() {
-        stroke(0, 5);
-        strokeWeight(1);
-        line(this.pos.x, this.pos.y, this.prevPos.x, this.prevPos.y);
+    follow(vectors, scale, cols) {
+        const x = floor(this.pos.x / scale);
+        const y = floor(this.pos.y / scale);
+        const index = x + y * cols;
+        const force = vectors[index];
+        this.acc.add(force);
     }
 
-    updatePrevious() {
-        this.prevPos.x = this.pos.x;
-        this.prevPos.y = this.pos.y;
+    update(maxVelocity) {
+        this.vel.add(this.acc);
+        this.vel.limit(maxVelocity);
+        this.pos.add(this.vel);
+        this.acc.mult(0);
     }
 
     edges() {
@@ -51,11 +48,14 @@ class Particle {
         }
     }
 
-    follow(vectors, scale, cols) {
-        const x = floor(this.pos.x / scale);
-        const y = floor(this.pos.y / scale);
-        const index = x + y * cols;
-        const force = vectors[index];
-        this.acc.add(force);
+    draw() {
+        stroke(0, 5);
+        strokeWeight(1);
+        line(this.pos.x, this.pos.y, this.prevPos.x, this.prevPos.y);
+    }
+
+    updatePrevious() {
+        this.prevPos.x = this.pos.x;
+        this.prevPos.y = this.pos.y;
     }
 }
