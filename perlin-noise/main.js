@@ -1,9 +1,14 @@
-const inc = 0.10;
+const increaseX = 0.10;
+const increaseY = 0.10;
+const increaseZ = 0.0005;
 const scale = 10;
-let cols, rows;
+const numberParticles = 10000;
+const maxVelocity = 4;
+const magnitude = 1;
 
-let zoff = 0;
 const particles = [];
+let cols, rows;
+let zoff = 0;
 let flowField;
 
 function setup() {
@@ -13,7 +18,7 @@ function setup() {
 
     flowField = new Array(rows * cols);
 
-    for (let i = 0; i < 10000; i++) {
+    for (let i = 0; i < numberParticles; i++) {
         particles[i] = new Particle(width, height);
     }
 
@@ -28,18 +33,15 @@ function draw() {
             let index = (x + y * cols);
             let angle = noise(xoff, yoff, zoff) * 8 * PI;
             let v = p5.Vector.fromAngle(angle);
-            v.setMag(1);
+            v.setMag(magnitude);
             flowField[index] = v;
-            xoff += inc;
+            xoff += increaseX;
         }
-        yoff += inc;
-        zoff += 0.0005;
+        yoff += increaseY;
+        zoff += increaseZ;
     }
 
-    for (let i = 0; i < particles.length; i++) {
-        particles[i].follow(flowField, scale, cols);
-        particles[i].update();
-        particles[i].edges();
-        particles[i].show();
+    for (particle of particles) {
+        particle.show(flowField, scale, cols, maxVelocity);
     }
 }
