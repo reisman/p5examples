@@ -7,6 +7,16 @@ let cvs, buffer;
 let started = false;
 let pendulum1, pendulum2;
 
+const defaultFirstMass = 40;
+const defaultSecondMass = 20;
+const defaultFirstLength = 125;
+const defaultSecondLength = 125;
+const defaultFirstAngle = 0.8;
+const defaultSecondAngle = 1.6;
+const defaultGravity = 0.5;
+const canvasBackground = [233, 236, 239];
+const parentElementId = 'sketch-holder';
+
 const startSimulation = () => {
     const readFromUi = () => {
         const getElement = name => {
@@ -29,17 +39,16 @@ const resetValues = () => {
             document.getElementById(name).value = value;
         }
     
-        setElement('firstMass', 20);
-        setElement('firstLength', 125);
-        setElement('firstAngle', 0.8);
-        setElement('secondMass', 40);
-        setElement('secondLength', 125);
-        setElement('secondAngle', 1.6);
-        setElement('gravity', g);
+        setElement('firstMass', defaultFirstMass);
+        setElement('firstLength', defaultFirstLength);
+        setElement('firstAngle', defaultFirstAngle);
+        setElement('secondMass', defaultSecondMass);
+        setElement('secondLength', defaultSecondLength);
+        setElement('secondAngle', defaultSecondAngle);
+        setElement('gravity', defaultGravity);
     }
 
     started = false;
-    g = 0.981;
     initState();
     writeDefaultToUi(); 
 }
@@ -47,19 +56,19 @@ const resetValues = () => {
 const initState = () => {
     x2_prev = undefined;
     y2_prev = undefined;
-    cvs.background(233, 236, 239);
-    buffer.background(233, 236, 239);
+    cvs.background(...canvasBackground);
+    buffer.background(...canvasBackground);
 }
 
 function setup() {
     cvs = createCanvas(800, 500);
-    cvs.parent('sketch-holder');
+    cvs.parent(parentElementId);
 
     x_center = width / 2;
     y_center = 200;
     
     buffer = createGraphics(width, height);
-    buffer.background(233, 236, 239);
+    buffer.background(...canvasBackground);
     buffer.translate(x_center, y_center);
 
     resetValues();
