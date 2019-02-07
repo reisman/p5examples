@@ -12,9 +12,8 @@ function draw() {
     stroke(255);
     translate(width / 2, height);
 
-    const len = 200;
-    const lenFactor = 0.7;
-    const branching = 2;
+    const len = 250;
+    const lenFactor = 0.53;
     branch(len, lenFactor, 0);
 }
 
@@ -24,22 +23,18 @@ const branch = (len, factor, level) => {
     
     if (len > 4){
         angle = slider.value();
-        /*
-        for (let i = 0; i < branching; i++) {
-            push();
-            rotate(angle);
-            branch(len * factor, factor, branching);
-            pop();
-        }
-        */
-       
         push();
         rotate(angle);
         branch(len * factor, factor, level + 1);
         pop();
-        /*push();
+        push();
+        rotate(angle / 2);
         branch(len * factor, factor, level + 1);
-        pop();*/
+        pop();
+        push();
+        rotate(-angle / 2);
+        branch(len * factor, factor, level + 1);
+        pop();
         push();
         rotate(-angle);
         branch(len * factor, factor, level + 1);
