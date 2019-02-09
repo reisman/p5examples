@@ -1,42 +1,38 @@
-let angle = 0;
-let qube;
-let sponge = [];
+const sponge = [];
 
 function setup() {
     createCanvas(window.innerWidth, window.innerHeight, WEBGL);
     normalMaterial();
     smooth();
-    b = new Box(0, 0, 0, 200);
-    sponge.push(b);
+    const rootQube = new Qube(0, 0, 0, 200);
+    sponge.push(rootQube);
 }
 
 function draw() {
     background(0);
     orbitControl(2, 2);
-    stroke(255);
+   
     directionalLight(250, 250, 250, 500, 500, 500);
     directionalLight(250, 250, 250, -500, -500, -500);
     
     for (q of sponge) {
         q.show();
     }
-
-    angle += 0.01;
 }
 
 function mousePressed(e) {
-    console.log(e);
     if (e.button === 2) {
         const next = [];
         for (q of sponge) {
-            next.push(...q.generate());
+            next.push(...q.generateSubQubes());
         }
-
-        sponge = next;
+        
+        sponge.length = 0;
+        sponge.push(...next);
     }
 }
 
-class Box {
+class Qube {
     constructor(x, y, z, size) {
         this.position = createVector(x, y, z);
         this.size = size;
@@ -45,12 +41,11 @@ class Box {
     show() {
         push();
         translate(this.position.x, this.position.y, this.position.z);
-        //fill(255);
         box(this.size);
         pop();
     }
 
-    generate() {
+    generateSubQubes() {
         const newSize = this.size / 3;
         const subQubes = [];
 
@@ -64,7 +59,7 @@ class Box {
                 for (let z = -1; z < 2; z++) {
                     if (z === 0 && ((x === 0) || (y === 0))) continue;
                     const newz = this.position.z + z * newSize;
-                    const subQube = new Box(newx, newy, newz, newSize);                
+                    const subQube = new Qube(newx, newy, newz, newSize);                
                     subQubes.push(subQube);
                 }
             }
