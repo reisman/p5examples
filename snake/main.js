@@ -88,7 +88,6 @@ class Snake {
     eat(pos) {
         const distance = dist(this.x, this.y, pos.x, pos.y);
         if (distance < 1) {
-            //this.tail.push(createVector(this.x, this.y));
             this.total++;
             return true;
         } else {
