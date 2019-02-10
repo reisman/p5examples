@@ -1,5 +1,5 @@
-const rows = 25;
-const cols = 25;
+const rows = 50;
+const cols = 50;
 const grid = [];
 
 const openSet = [];
@@ -37,6 +37,9 @@ function setup() {
 
     start = grid[0][0];
     end = grid[cols - 1][rows - 1];
+    start.wall = false;
+    end.wall = false;
+
     openSet.push(start);
 }
 
@@ -63,20 +66,24 @@ function draw() {
         
         const neighbors = current.neighbors;
         for (neighbor of neighbors) {
-            if (!closedSet.includes(neighbor)) {
+            if (!closedSet.includes(neighbor) && !neighbor.wall) {
                 const tempg = current.g + 1;
+                let newPath = false;
                 if (openSet.includes(neighbor)) {
                     if (tempg < neighbor.g) {
-                        neighbor.g = tempg;
+                        newPath = true;
                     }
                 } else {
-                    neighbor.g = tempg;
+                    newPath = true;
                     openSet.push(neighbor);
                 }
 
-                neighbor.h = heuristic(neighbor, end);
-                neighbor.f = neighbor.g + neighbor.h;
-                neighbor.previous = current;
+                if (newPath) {
+                    neighbor.g = tempg;
+                    neighbor.h = heuristic(neighbor, end);
+                    neighbor.f = neighbor.g + neighbor.h;
+                    neighbor.previous = current;
+                }
             }
         }
 
@@ -87,7 +94,8 @@ function draw() {
             tmp = tmp.previous;
         }
     } else {
-
+        console.log('No solution');
+        noLoop();
     }
 
     background(255);
@@ -112,7 +120,7 @@ function draw() {
 }
 
 const heuristic = (a, b) => {
-    return abs(a.x - b.x) + abs(a.y - b.y);
+    return dist(a.x, a.y, b.x, b.y);
 };
 
 class Spot {
@@ -126,11 +134,15 @@ class Spot {
         this.rowScale = rowScale;
         this.neighbors = [];
         this.previous = undefined;
+        this.wall = random(1) < 0.2;
     }
 
     show(color) {
         stroke(0);
         fill(color);
+        if (this.wall) {
+            fill(0);
+        }
         rect(this.x * this.colScale, this.y * this.rowScale, this.colScale, this.rowScale);
     }
 
@@ -149,6 +161,22 @@ class Spot {
 
         if (this.y > 0) {
             this.neighbors.push(grid[this.x][this.y - 1]);
+        }
+
+        if (this.x > 0 && this.y > 0) {
+            this.neighbors.push(grid[this.x - 1][this.y - 1]);
+        }
+
+        if (this.x < cols - 1 && this.y > 0) {
+            this.neighbors.push(grid[this.x + 1][this.y - 1]);
+        }
+
+        if (this.x > 0 && this.y < rows - 1) {
+            this.neighbors.push(grid[this.x - 1][this.y + 1]);
+        }
+
+        if (this.x < cols - 1 && this.y < rows - 1) {
+            this.neighbors.push(grid[this.x + 1][this.y + 1]);
         }
     }
 }
