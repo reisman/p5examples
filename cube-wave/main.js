@@ -7,7 +7,7 @@ let halfWidth, halfHeight;
 let minBoxHeight, maxBoxHeight;
 
 function setup() {
-    createCanvas(900, 900, WEBGL);
+    createCanvas(800, 800, WEBGL);
     
     noStroke();
     normalMaterial();
