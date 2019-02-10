@@ -1,5 +1,5 @@
-const rows = 50;
-const cols = 50;
+const rows = 100;
+const cols = 100;
 const grid = [];
 
 const openSet = [];
@@ -7,6 +7,7 @@ const closedSet = [];
 let start;
 let end;
 let w, h;
+let buffer;
 
 const removeFromArray = (array, item) => {
     const idx = array.indexOf(item);
@@ -14,7 +15,7 @@ const removeFromArray = (array, item) => {
 }
 
 function setup() {
-    createCanvas(600, 600);
+    createCanvas(1000, 1000);
 
     w = width / cols;
     h = height / rows;
@@ -41,6 +42,13 @@ function setup() {
     end.wall = false;
 
     openSet.push(start);
+
+    buffer = createGraphics(width, height);
+    for (let i = 0; i < cols; i++) {
+        for (let j = 0; j < rows; j++) {
+            grid[i][j].show(buffer, color(255));
+        }    
+    }
 }
 
 function draw() {
@@ -99,24 +107,17 @@ function draw() {
     }
 
     background(255);
+    image(buffer, 0, 0, width, height);
     
-    for (let i = 0; i < cols; i++) {
-        for (let j = 0; j < rows; j++) {
-            grid[i][j].show(color(255));
-        }    
-    }
-
-    for (let i = 0; i < closedSet.length; i++) {
-        closedSet[i].show(color(255, 0, 0));
-    }
-
-    for (let i = 0; i < openSet.length; i++) {
-        openSet[i].show(color(0, 255, 0));
-    }
-
+    noFill();
+    stroke(0, 255, 0);
+    strokeWeight(0.5 * w);
+    beginShape();
     for (let i = 0; i < path.length; i++) {
-        path[i].show(color(0, 0, 255));
+        vertex(path[i].x * w + 0.5 * w, path[i].y * h + 0.5 * h);
     }
+    endShape();
+    strokeWeight(1);
 }
 
 const heuristic = (a, b) => {
@@ -134,19 +135,30 @@ class Spot {
         this.rowScale = rowScale;
         this.neighbors = [];
         this.previous = undefined;
-        this.wall = random(1) < 0.2;
+        this.wall = random(1) < 0.35;
     }
 
-    show(color) {
-        stroke(0);
-        fill(color);
+    show(graphics, color) {
+        graphics.stroke(0);
+        graphics.strokeWeight(this.colScale);
+        graphics.fill(color);
+        const scalex = a => a * this.colScale + 0.5 * this.colScale;
+        const scaley = a => a * this.rowScale + 0.5 * this.rowScale;
+
         if (this.wall) {
-            fill(0);
+            for (let n of this.neighbors) {
+                if (n.wall && (n.x > this.x || n.y > this.y)) {
+                    graphics.line(scalex(this.x), scaley(this.y), scalex(n.x), scaley(n.y));
+                }
+            }
         }
-        rect(this.x * this.colScale, this.y * this.rowScale, this.colScale, this.rowScale);
     }
 
     addNeighbors(grid) {
+        const isBlocked = (i, j) => {
+            return grid[i][j].wall;
+        }
+
         if (this.x < cols - 1) {
             this.neighbors.push(grid[this.x + 1][this.y]);
         }
@@ -162,21 +174,29 @@ class Spot {
         if (this.y > 0) {
             this.neighbors.push(grid[this.x][this.y - 1]);
         }
-
+    
         if (this.x > 0 && this.y > 0) {
-            this.neighbors.push(grid[this.x - 1][this.y - 1]);
+            if (!isBlocked(this.x - 1, this.y) || !isBlocked(this.x, this.y - 1)) {
+                this.neighbors.push(grid[this.x - 1][this.y - 1]);
+            }
         }
 
         if (this.x < cols - 1 && this.y > 0) {
-            this.neighbors.push(grid[this.x + 1][this.y - 1]);
+            if (!isBlocked(this.x + 1, this.y) || !isBlocked(this.x, this.y - 1)) {
+                this.neighbors.push(grid[this.x + 1][this.y - 1]);
+            }
         }
 
         if (this.x > 0 && this.y < rows - 1) {
-            this.neighbors.push(grid[this.x - 1][this.y + 1]);
+            if (!isBlocked(this.x - 1, this.y) || !isBlocked(this.x, this.y + 1)) {
+                this.neighbors.push(grid[this.x - 1][this.y + 1]);
+            }
         }
 
         if (this.x < cols - 1 && this.y < rows - 1) {
-            this.neighbors.push(grid[this.x + 1][this.y + 1]);
+            if (!isBlocked(this.x + 1, this.y) || !isBlocked(this.x, this.y + 1)) {
+                this.neighbors.push(grid[this.x + 1][this.y + 1]);
+            }
         }
     }
 }
