@@ -4,8 +4,7 @@ let grid;
 
 const openSet = [];
 const closedSet = [];
-let start;
-let end;
+let start, end;
 let w, h;
 let buffer;
 
@@ -32,73 +31,58 @@ function setup() {
 }
 
 function draw() {
-    const path = [];
-
-    if (openSet.length > 0) {
-        let winner = 0;
-        for (let i = 0; i < openSet.length; i++) {
-            if (openSet[i].f < openSet[winner].f) {
-                winner = i;
-            }
-        }
-
-        let current = openSet[winner];
-
-        if (current === end) {
-            noLoop();
-            console.log('Done');
-        }
-
-        removeFromArray(openSet, current);
-        closedSet.push(current);
-        
-        const neighbors = current.neighbors;
-        for (neighbor of neighbors) {
-            if (!closedSet.includes(neighbor) && !neighbor.wall) {
-                const tempg = current.g + 1;
-                let newPath = false;
-                if (openSet.includes(neighbor)) {
-                    if (tempg < neighbor.g) {
-                        newPath = true;
-                    }
-                } else {
-                    newPath = true;
-                    openSet.push(neighbor);
-                }
-
-                if (newPath) {
-                    neighbor.g = tempg;
-                    neighbor.h = heuristic(neighbor, end);
-                    neighbor.f = neighbor.g + neighbor.h;
-                    neighbor.previous = current;
-                }
-            }
-        }
-
-        
-        let tmp = current;
-        while (tmp) {
-            path.push(tmp);
-            tmp = tmp.previous;
-        }
-    } else {
+    if (openSet.length <= 0) {
         console.log('No solution');
         noLoop();
+        background(255, 0, 0, 70);
+        return;
     }
+    
+    let current = openSet.sort((a, b) => a.f - b.f)[0];
+    if (current === end) {
+        console.log('Done');
+        noLoop();
+        background(0, 255, 0, 70);
+        return;
+    }
+    
+    removeFromArray(openSet, current);
+    closedSet.push(current);
+    
+    current.neighbors
+        .filter(n => !n.wall)
+        .filter(n => !closedSet.includes(n))
+        .filter(n => !openSet.includes(n) || (current.g + 1) < n.g)
+        .forEach(neighbor => {
+            if (!openSet.includes(neighbor)){
+                openSet.push(neighbor);
+            }
+
+            neighbor.g = current.g + 1;
+            neighbor.h = heuristic(neighbor, end);
+            neighbor.f = neighbor.g + neighbor.h;
+            neighbor.previous = current;
+        });
 
     background(255);
     image(buffer, 0, 0, width, height);
-    
-    drawPath(path);
+    drawPath(current);
 }
 
-const drawPath = path => {
+const drawPath = current => {
+    const path = [];
+    let tmp = current;
+    while (tmp) {
+        path.push(tmp);
+        tmp = tmp.previous;
+    }
+
     noFill();
     stroke(0, 255, 0);
     strokeWeight(0.5 * w);
     beginShape();
     for (let i = 0; i < path.length; i++) {
-        curveVertex(path[i].x * w + 0.5 * w, path[i].y * h + 0.5 * h);
+        vertex(path[i].x * w + 0.5 * w, path[i].y * h + 0.5 * h);
     }
     endShape();
 };
