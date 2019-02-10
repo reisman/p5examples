@@ -1,6 +1,6 @@
-const rows = 100;
-const cols = 100;
-const grid = [];
+const rows = 50;
+const cols = 50;
+let grid;
 
 const openSet = [];
 const closedSet = [];
@@ -19,36 +19,16 @@ function setup() {
 
     w = width / cols;
     h = height / rows;
-
-    for (let i = 0; i < cols; i++) {
-        grid.push(new Array(rows));
-    }
-
-    for (let i = 0; i < cols; i++) {
-        for (let j = 0; j < rows; j++) {
-            grid[i][j] = new Spot(i, j, w, h);
-        }
-    }
-
-    for (let i = 0; i < cols; i++) {
-        for (let j = 0; j < rows; j++) {
-            grid[i][j].addNeighbors(grid);
-        }
-    }
-
+    grid = createGrid();
+    
     start = grid[0][0];
-    end = grid[cols - 1][rows - 1];
     start.wall = false;
+    openSet.push(start);
+    
+    end = grid[cols - 1][rows - 1];
     end.wall = false;
 
-    openSet.push(start);
-
-    buffer = createGraphics(width, height);
-    for (let i = 0; i < cols; i++) {
-        for (let j = 0; j < rows; j++) {
-            grid[i][j].show(buffer, color(255));
-        }    
-    }
+    buffer = createWallGraphics(grid);
 }
 
 function draw() {
@@ -109,20 +89,55 @@ function draw() {
     background(255);
     image(buffer, 0, 0, width, height);
     
+    drawPath(path);
+}
+
+const drawPath = path => {
     noFill();
     stroke(0, 255, 0);
     strokeWeight(0.5 * w);
     beginShape();
     for (let i = 0; i < path.length; i++) {
-        vertex(path[i].x * w + 0.5 * w, path[i].y * h + 0.5 * h);
+        curveVertex(path[i].x * w + 0.5 * w, path[i].y * h + 0.5 * h);
     }
     endShape();
-    strokeWeight(1);
-}
+};
 
 const heuristic = (a, b) => {
     return dist(a.x, a.y, b.x, b.y);
 };
+
+const createWallGraphics = grid => {
+    const graphics = createGraphics(width, height);
+    for (let i = 0; i < cols; i++) {
+        for (let j = 0; j < rows; j++) {
+            grid[i][j].show(graphics);
+        }    
+    }
+    return graphics;
+}
+
+const createGrid = () => {
+    const result = [];
+
+    for (let i = 0; i < cols; i++) {
+        result.push(new Array(rows));
+    }
+
+    for (let i = 0; i < cols; i++) {
+        for (let j = 0; j < rows; j++) {
+            result[i][j] = new Spot(i, j, w, h);
+        }
+    }
+
+    for (let i = 0; i < cols; i++) {
+        for (let j = 0; j < rows; j++) {
+            result[i][j].addNeighbors(result);
+        }
+    }
+
+    return result;
+}
 
 class Spot {
     constructor(col, row, colScale, rowScale) {
@@ -135,22 +150,26 @@ class Spot {
         this.rowScale = rowScale;
         this.neighbors = [];
         this.previous = undefined;
-        this.wall = random(1) < 0.35;
+        this.wall = random(1) < 0.30;
     }
 
-    show(graphics, color) {
+    show(graphics) {        
+        if (!this.wall) return;
+        
         graphics.stroke(0);
-        graphics.strokeWeight(this.colScale);
-        graphics.fill(color);
-        const scalex = a => a * this.colScale + 0.5 * this.colScale;
-        const scaley = a => a * this.rowScale + 0.5 * this.rowScale;
-
-        if (this.wall) {
-            for (let n of this.neighbors) {
-                if (n.wall && (n.x > this.x || n.y > this.y)) {
-                    graphics.line(scalex(this.x), scaley(this.y), scalex(n.x), scaley(n.y));
-                }
-            }
+        graphics.fill(0);
+        
+        const wallNeighbors = this.neighbors.filter(n => n.wall);
+        if (wallNeighbors.length > 0) {
+            graphics.strokeWeight(this.colScale);
+            const scalex = a => a * this.colScale + 0.5 * this.colScale;
+            const scaley = a => a * this.rowScale + 0.5 * this.rowScale;
+            wallNeighbors
+                .filter(n => n.x > this.x || n.y > this.y)
+                .forEach(n => graphics.line(scalex(this.x), scaley(this.y), scalex(n.x), scaley(n.y)));
+        } else {
+            graphics.strokeWeight(1);
+            graphics.ellipse(this.x * this.colScale, this.y * this.rowScale, this.colScale, this.rowScale);
         }
     }
 
