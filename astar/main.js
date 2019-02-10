@@ -82,7 +82,7 @@ const drawPath = current => {
     strokeWeight(0.5 * w);
     beginShape();
     for (let i = 0; i < path.length; i++) {
-        vertex(path[i].x * w + 0.5 * w, path[i].y * h + 0.5 * h);
+        curveVertex(path[i].x * w + 0.5 * w, path[i].y * h + 0.5 * h);
     }
     endShape();
 };
@@ -164,10 +164,26 @@ class Spot {
 
         if (this.x < cols - 1) {
             this.neighbors.push(grid[this.x + 1][this.y]);
+
+            if (this.y > 0 && (!isBlocked(this.x + 1, this.y) || !isBlocked(this.x, this.y - 1))) {
+                this.neighbors.push(grid[this.x + 1][this.y - 1]);
+            }
+
+            if (this.y < rows - 1 && (!isBlocked(this.x + 1, this.y) || !isBlocked(this.x, this.y + 1))) {
+                this.neighbors.push(grid[this.x + 1][this.y + 1]);
+            }
         }
 
         if (this.x > 0) {
             this.neighbors.push(grid[this.x - 1][this.y]);
+
+            if (this.y > 0 && (!isBlocked(this.x - 1, this.y) || !isBlocked(this.x, this.y - 1))) {
+                this.neighbors.push(grid[this.x - 1][this.y - 1]);
+            }
+
+            if (this.y < rows - 1 && (!isBlocked(this.x - 1, this.y) || !isBlocked(this.x, this.y + 1))) {
+                this.neighbors.push(grid[this.x - 1][this.y + 1]);
+            }
         }
 
         if (this.y < rows - 1) {
@@ -176,30 +192,6 @@ class Spot {
 
         if (this.y > 0) {
             this.neighbors.push(grid[this.x][this.y - 1]);
-        }
-    
-        if (this.x > 0 && this.y > 0) {
-            if (!isBlocked(this.x - 1, this.y) || !isBlocked(this.x, this.y - 1)) {
-                this.neighbors.push(grid[this.x - 1][this.y - 1]);
-            }
-        }
-
-        if (this.x < cols - 1 && this.y > 0) {
-            if (!isBlocked(this.x + 1, this.y) || !isBlocked(this.x, this.y - 1)) {
-                this.neighbors.push(grid[this.x + 1][this.y - 1]);
-            }
-        }
-
-        if (this.x > 0 && this.y < rows - 1) {
-            if (!isBlocked(this.x - 1, this.y) || !isBlocked(this.x, this.y + 1)) {
-                this.neighbors.push(grid[this.x - 1][this.y + 1]);
-            }
-        }
-
-        if (this.x < cols - 1 && this.y < rows - 1) {
-            if (!isBlocked(this.x + 1, this.y) || !isBlocked(this.x, this.y + 1)) {
-                this.neighbors.push(grid[this.x + 1][this.y + 1]);
-            }
         }
     }
 }
