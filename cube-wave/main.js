@@ -1,4 +1,4 @@
-const w = 50;
+const w = 25;
 const boxes = [];
 
 let angle = 0;
